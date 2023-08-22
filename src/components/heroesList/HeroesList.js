@@ -1,6 +1,7 @@
 import { useHttp } from '../../hooks/http.hook';
 import { useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { createSelector } from 'reselect';
 import { AnimatePresence } from 'framer-motion';
 
 import { heroesFetching, heroesFetched, heroesFetchingError, heroDeleted } from '../../actions';
@@ -8,7 +9,22 @@ import HeroesListItem from "../heroesListItem/HeroesListItem";
 import Spinner from '../spinner/Spinner';
 
 const HeroesList = () => {
-    const {filteredHeroes, heroesLoadingStatus} = useSelector(state => state);
+
+    const filteredHeroesSelector = createSelector(
+        (state) => state.filters.activeFilter,
+        (state) => state.heroes.heroes,
+        (activeFilter, heroes) => {
+            if (activeFilter === 'all') {
+                console.log('render')
+                return heroes
+            } else {
+                return heroes.filter(item => item.element === activeFilter)
+            }
+        }
+    )
+
+    const filteredHeroes = useSelector(filteredHeroesSelector);
+    const {heroesLoadingStatus} = useSelector(state => state);
     const dispatch = useDispatch();
     const {request} = useHttp();
     
@@ -17,7 +33,6 @@ const HeroesList = () => {
         request("http://localhost:3001/heroes")
             .then(data => dispatch(heroesFetched(data)))
             .catch(() => dispatch(heroesFetchingError()))
-
         // eslint-disable-next-line
     }, []);
 
