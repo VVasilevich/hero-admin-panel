@@ -33,7 +33,7 @@ const HeroesFilters = () => {
             })
 
             return <button
-                        ket={name}
+                        key={name}
                         id={name}
                         className={btnClass}
                         onClick={() => dispatch(activeFilterChanged(name))}
